@@ -21,6 +21,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -34,6 +37,7 @@ public class PluginInfo extends Artifact {
 
     private Map<String, List<Artifact>> classpaths = new HashMap<>();
     private File sourceDirectory;
+    private Date sourcePomLastModified;
     private boolean directDeploy;
     private List<Artifact> dependsOn = new ArrayList<>();
     private List<Artifact> importsFrom = new ArrayList<>();
@@ -81,6 +85,17 @@ public class PluginInfo extends Artifact {
             String sourceDir = pluginElement.getAttribute("sourceDirectory");
             if(sourceDir != null && !sourceDir.trim().isEmpty()) {
                 pluginInfo.setSourceDirectory(new File(sourceDir));
+            }
+
+            String sourcePom = pluginElement.getAttribute("sourcePomLastModified");
+            if(sourcePom != null && !sourcePom.trim().isEmpty()) {
+                DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+                try {
+                    Date result =  df.parse(sourcePom);
+                    pluginInfo.setSourcePomLastModified(result);
+                } catch (ParseException e) {
+                    // ignore
+                }
             }
 
             NodeList dependsOnElems = pluginElement.getElementsByTagName("depends-on");
@@ -447,5 +462,13 @@ public class PluginInfo extends Artifact {
                 }
             }
         }
+    }
+
+    public Date getSourcePomLastModified() {
+        return sourcePomLastModified;
+    }
+
+    public void setSourcePomLastModified(Date sourcePomLastModified) {
+        this.sourcePomLastModified = sourcePomLastModified;
     }
 }
