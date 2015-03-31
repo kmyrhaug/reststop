@@ -24,6 +24,7 @@ import java.awt.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,6 +77,7 @@ public class RunMojo extends AbstractReststopMojo {
         if(mavenProject.getPackaging().equals("jar")) {
             Plugin projectPlugin = new Plugin(mavenProject.getGroupId(), mavenProject.getArtifactId(), mavenProject.getVersion());
             projectPlugin.setSourceDirectory(mavenProject.getBasedir());
+            if(mavenProject.getFile().exists()) projectPlugin.setSourcePomLastModified(new Date(mavenProject.getFile().lastModified()));
             plugins.add(projectPlugin);
         }
 
