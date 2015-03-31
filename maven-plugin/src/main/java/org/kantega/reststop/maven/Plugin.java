@@ -19,6 +19,7 @@ package org.kantega.reststop.maven;
 import org.kantega.reststop.classloaderutils.PluginInfo;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -31,6 +32,7 @@ public class Plugin {
     private String version;
     private boolean directDeploy = true;
     private File sourceDirectory;
+    private Date sourcePomLastModified;
     private Properties config;
 
     private List<Dependency> dependencies;
@@ -103,6 +105,8 @@ public class Plugin {
 
         info.setSourceDirectory(getSourceDirectory());
 
+        info.setSourcePomLastModified(getSourcePomLastModified());
+
         info.setConfig(config);
 
 
@@ -117,5 +121,13 @@ public class Plugin {
 
     public void setDependencies(List<Dependency> dependencies) {
         this.dependencies = dependencies;
+    }
+
+    public Date getSourcePomLastModified() {
+        return sourcePomLastModified;
+    }
+
+    public void setSourcePomLastModified(Date sourcePomLastModified) {
+        this.sourcePomLastModified = sourcePomLastModified;
     }
 }
