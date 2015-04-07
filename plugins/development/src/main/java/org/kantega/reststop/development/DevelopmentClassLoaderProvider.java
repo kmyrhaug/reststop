@@ -86,7 +86,7 @@ public class DevelopmentClassLoaderProvider {
                 }
                 throw new RuntimeException(message.toString(), e);
             }
-            stale.copySourceResorces();
+            stale.copySourceResources();
         }
         change.commit();
 

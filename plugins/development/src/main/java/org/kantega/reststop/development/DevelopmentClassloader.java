@@ -25,7 +25,6 @@ import org.kantega.reststop.classloaderutils.PluginInfo;
 import javax.tools.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,11 +33,12 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.jar.Manifest;
 
 import static java.util.Arrays.asList;
 
@@ -383,7 +383,7 @@ public class DevelopmentClassloader extends PluginClassLoader{
         return sb.toString();
     }
 
-    public void copySourceResorces() {
+    public void copySourceResources() {
         final Path fromDirectory = new File(basedir, "src/main/resources/").toPath();
         final Path toDirectory = new File(basedir, "target/classes").toPath();
 
