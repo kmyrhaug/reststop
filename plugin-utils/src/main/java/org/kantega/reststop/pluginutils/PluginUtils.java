@@ -139,7 +139,7 @@ public class PluginUtils {
                     }
 
                     if (plugin.getSourcePomLastModified() != null) {
-                        pluginElem.setAttribute("sourcePom", plugin.getSourcePomLastModified().toString());
+                        pluginElem.setAttribute("sourcePomLastModified", plugin.getSourcePomLastModified().toString());
                     }
 
                     pluginElem.setAttribute("pluginFile", plugin.getFile().getAbsolutePath());
