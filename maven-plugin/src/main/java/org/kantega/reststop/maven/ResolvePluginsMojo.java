@@ -21,6 +21,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.kantega.reststop.pluginutils.Plugin;
+import org.kantega.reststop.pluginutils.PluginUtils;
 import org.w3c.dom.Document;
 
 import javax.xml.transform.OutputKeys;

@@ -21,6 +21,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.eclipse.jetty.server.Server;
+import org.kantega.reststop.pluginutils.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -19,6 +19,7 @@ package org.kantega.reststop.maven;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.*;
 import org.eclipse.jetty.server.Server;
+import org.kantega.reststop.pluginutils.Plugin;
 
 import java.awt.*;
 import java.net.URI;

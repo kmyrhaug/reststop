@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kantega.reststop.maven;
+package org.kantega.reststop.pluginutils;
 
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;

@@ -33,6 +33,8 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.kantega.reststop.pluginutils.Plugin;
+import org.kantega.reststop.pluginutils.PluginUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

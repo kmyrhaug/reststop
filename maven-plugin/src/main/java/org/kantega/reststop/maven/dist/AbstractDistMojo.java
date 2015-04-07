@@ -37,8 +37,8 @@ import org.eclipse.aether.repository.LocalRepositoryManager;
 import org.eclipse.aether.resolution.*;
 import org.eclipse.aether.util.filter.ScopeDependencyFilter;
 import org.kantega.reststop.maven.AbstractReststopMojo;
-import org.kantega.reststop.maven.Plugin;
-import org.kantega.reststop.maven.PluginUtils;
+import org.kantega.reststop.pluginutils.Plugin;
+import org.kantega.reststop.pluginutils.PluginUtils;
 import org.w3c.dom.Document;
 
 import javax.xml.transform.OutputKeys;

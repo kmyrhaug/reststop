@@ -72,6 +72,7 @@
         <module>api</module>
         <module>core</module>
         <module>webapp</module>
+        <module>plugin-utils</module>
         <module>maven-plugin</module>
         <module>plugins</module>
         <module>integration-tests/hello-world</module>
@@ -108,7 +109,11 @@
                 <artifactId>reststop-classloader-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>reststop-plugin-utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>reststop-webapp</artifactId>
