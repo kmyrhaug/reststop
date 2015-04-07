@@ -122,7 +122,7 @@ public class DevelopmentPlugin extends DefaultReststopPlugin {
 
 
         addServletFilter(reststop.createFilter(new DevelopmentAssetsFilter(), "/dev/assets/*", FilterPhase.PRE_UNMARSHAL));
-        addServletFilter(reststop.createFilter(new RedeployFilter(provider, reststop, velocityEngine, "true".equals(runTestsOnRedeploy)), "/*", FilterPhase.PRE_UNMARSHAL));
+        addServletFilter(reststop.createFilter(new RedeployFilter(provider, reststop, velocityEngine, "true".equals(runTestsOnRedeploy), infos), "/*", FilterPhase.PRE_UNMARSHAL));
 
     }
 

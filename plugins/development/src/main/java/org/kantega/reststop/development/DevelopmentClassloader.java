@@ -105,6 +105,12 @@ public class DevelopmentClassloader extends PluginClassLoader{
         this(other.getPluginInfo(), other.getBasedir(), other.jarFile, other.compileClasspath, other.runtimeClasspath, other.testClasspath, parentClassLoader);
     }
 
+
+    public DevelopmentClassloader(DevelopmentClassloader c, PluginInfo pluginInfo) {
+        this(pluginInfo, c.getBasedir(), c.jarFile, c.compileClasspath, c.runtimeClasspath, c.testClasspath, c.getParent());
+    }
+
+
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         return super.loadClass(name);    //To change body of overridden methods use File | Settings | File Templates.

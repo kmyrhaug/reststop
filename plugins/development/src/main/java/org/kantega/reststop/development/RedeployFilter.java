@@ -16,15 +16,18 @@
 
 package org.kantega.reststop.development;
 
+import org.apache.maven.shared.invoker.*;
 import org.apache.velocity.app.VelocityEngine;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.kantega.reststop.api.Reststop;
 import org.kantega.reststop.classloaderutils.PluginInfo;
+import org.kantega.reststop.pluginutils.PluginUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -40,12 +43,14 @@ public class RedeployFilter implements Filter {
     private final Object runTestsMonitor = new Object();
     private final VelocityEngine velocityEngine;
     private final boolean shouldRunTests;
+    private final List<PluginInfo> pluginInfos;
 
-    public RedeployFilter(DevelopmentClassLoaderProvider provider, Reststop reststop, VelocityEngine velocityEngine, boolean shouldRunTests) {
+    public RedeployFilter(DevelopmentClassLoaderProvider provider, Reststop reststop, VelocityEngine velocityEngine, boolean shouldRunTests, List<PluginInfo> infos) {
         this.provider = provider;
         this.reststop = reststop;
         this.velocityEngine = velocityEngine;
         this.shouldRunTests = shouldRunTests;
+        pluginInfos = infos;
     }
 
     @Override
@@ -58,7 +63,7 @@ public class RedeployFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) servletRequest;
         HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
-        if(testing || req.getServletPath().startsWith("/assets")) {
+        if (testing || req.getServletPath().startsWith("/assets")) {
             filterChain.doFilter(req, resp);
             return;
         }
@@ -70,7 +75,7 @@ public class RedeployFilter implements Filter {
         synchronized (this) {
             staleClassLoaders.addAll(provider.findStaleClassLoaders());
 
-            if(staleClassLoaders.isEmpty()) {
+            if (staleClassLoaders.isEmpty()) {
                 filterChain.doFilter(servletRequest, servletResponse);
                 return;
             }
@@ -78,11 +83,16 @@ public class RedeployFilter implements Filter {
             for (DevelopmentClassloader classloader : staleClassLoaders) {
                 try {
 
+                    for (PluginInfo info : pluginInfos) {
+                        if (info.getPluginId().equals(classloader.getPluginInfo().getPluginId())) {
+                            classloader = redployArtifactAndRefreshClassloader(info, classloader);
+                        }
+                    }
+
                     classloader.compileSources();
-                    classloader.copySourceResorces();
+                    classloader.copySourceResources();
                     classloader.compileJavaTests();
                     classloader.copyTestResources();
-
 
                 } catch (JavaCompilationException e) {
                     new ErrorReporter(velocityEngine, classloader.getBasedir()).addCompilationException(e).render(req, resp);
@@ -107,7 +117,7 @@ public class RedeployFilter implements Filter {
 
             }
 
-            if(shouldRunTests) {
+            if (shouldRunTests) {
                 Map<String, DevelopmentClassloader> testLoaders = new LinkedHashMap<>();
 
                 for (DevelopmentClassloader classloader : newClassLoaders) {
@@ -170,10 +180,40 @@ public class RedeployFilter implements Filter {
             }
 
         }
-        if(! staleClassLoaders.isEmpty() ) {
+        if (!staleClassLoaders.isEmpty()) {
             reststop.newFilterChain(filterChain).doFilter(servletRequest, servletResponse);
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
+        }
+    }
+
+    private DevelopmentClassloader redployArtifactAndRefreshClassloader(PluginInfo pluginInfo, DevelopmentClassloader classloader) {
+        Date repoDate = pluginInfo.getSourcePomLastModified();
+
+        File pomFile = new File(classloader.getBasedir(), "pom.xml");
+        if (repoDate != null && pomFile.exists()) {
+            Date sourceDate = new Date(pomFile.lastModified());
+            if (sourceDate.after(repoDate)) {
+                redeployArtifact(pomFile);
+                PluginUtils pluginUtils = new PluginUtils();
+                pluginUtils.refreshPluginInfos(pluginInfos);
+
+                classloader = new DevelopmentClassloader(classloader, pluginInfo);
+            }
+        }
+        return classloader;
+    }
+
+    private synchronized void redeployArtifact(File pomFile) {
+        InvocationRequest request = new DefaultInvocationRequest();
+        request.setPomFile(pomFile);
+        request.setGoals(Arrays.asList("clean", "install"));
+
+        Invoker invoker = new DefaultInvoker();
+        try {
+            invoker.execute(request);
+        } catch (MavenInvocationException e1) {
+            throw new RuntimeException(e1);
         }
     }
 
