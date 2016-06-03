@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
 
 import static org.kantega.reststop.classloaderutils.PluginInfo.configure;
@@ -233,8 +234,17 @@ public class ReststopInitializer implements ServletContainerInitializer{
                     resp.setContentType(mediaType);
 
                     OutputStream output = resp.getOutputStream();
+                    URLConnection urlConnection = url.openConnection();
+                    long lastModified = urlConnection.getLastModified();
+                    if (lastModified != 0L) {
+                        resp.setDateHeader("last-modified", lastModified);
+                    }
+                    long contentLength = urlConnection.getContentLengthLong();
+                    if(contentLength != -1) {
+                        resp.setContentLengthLong(contentLength);
+                    }
 
-                    try (InputStream input = url.openStream()){
+                    try (InputStream input = urlConnection.getInputStream()){
                         byte[] buffer = new byte[1024];
                         int n;
                         while (-1 != (n = input.read(buffer))) {
@@ -462,13 +472,10 @@ public class ReststopInitializer implements ServletContainerInitializer{
 
         filters.add(new ClassLoaderFilter(AssetFilter.class.getClassLoader(), new MappingWrappedFilter(new AssetFilter(pluginManager), "/assets/*", FilterPhase.USER)));
 
-        Collections.sort(filters, new Comparator<ClassLoaderFilter>() {
-            @Override
-            public int compare(ClassLoaderFilter o1, ClassLoaderFilter o2) {
-                FilterPhase phase1 = o1.filter instanceof MappingWrappedFilter ? ((MappingWrappedFilter)o1.filter).phase : FilterPhase.USER;
-                FilterPhase phase2 = o2.filter instanceof MappingWrappedFilter ? ((MappingWrappedFilter)o2.filter).phase : FilterPhase.USER;
-                return phase1.ordinal() - phase2.ordinal();
-            }
+        Collections.sort(filters, (o1, o2) -> {
+            FilterPhase phase1 = o1.filter instanceof MappingWrappedFilter ? ((MappingWrappedFilter)o1.filter).phase : FilterPhase.USER;
+            FilterPhase phase2 = o2.filter instanceof MappingWrappedFilter ? ((MappingWrappedFilter)o2.filter).phase : FilterPhase.USER;
+            return phase1.ordinal() - phase2.ordinal();
         });
         return new PluginFilterChain(request, filters, filterChain);
     }
@@ -533,11 +540,7 @@ public class ReststopInitializer implements ServletContainerInitializer{
             final String path = "assets/" +contextRelative.substring("/assets/".length());
 
             for(ClassLoader loader : manager.getPluginClassLoaders()) {
-
-
-
                 URL resource = loader.getResource(path);
-
 
                 if(resource != null && !path.endsWith("/") && isDirectoryResource(resource, loader, path)) {
                     resp.sendRedirect(req.getRequestURI() +"/");
@@ -554,9 +557,20 @@ public class ReststopInitializer implements ServletContainerInitializer{
                         resp.setContentType(mimeType);
                     }
 
-                    try (InputStream in = resource.openStream()) {
+                    URLConnection urlConnection = resource.openConnection();
+                    long lastModified = urlConnection.getLastModified();
+                    if (lastModified != 0L) {
+                        resp.setDateHeader("last-modified", lastModified);
+                    }
+                    long contentLength = urlConnection.getContentLengthLong();
+                    if(contentLength != -1) {
+                        resp.setContentLengthLong(contentLength);
+                    }
+
+                    try (InputStream in = urlConnection.getInputStream()) {
                         copy(in, servletResponse.getOutputStream());
                     }
+
                     return;
                 }
             }
